@@ -47,7 +47,7 @@ session_start();
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-custom py-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="essaie2.php">   Rési </a>
+        <a class="navbar-brand" href="index.php">   Rési </a>
 
 
 
