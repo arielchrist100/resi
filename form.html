@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Paiement Stripe</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; }
+    #card-element { border: 1px solid #ccc; padding: 10px; border-radius: 4px; }
+    #payment-form { margin-top: 20px; }
+    button { margin-top: 20px; padding: 10px 20px; background: #6772e5; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <h2>Formulaire de paiement</h2>
+
+  <form id="payment-form">
+    <label for="card-element">Carte bancaire :</label>
+    <div id="card-element"><!-- Stripe injectera le champ ici --></div>
+    <div id="card-errors" role="alert" style="color: red;"></div>
+    <button type="submit">Payer</button>
+  </form>
+
+  <script>
+    // 🟦 Remplace ici par ta clé publique TEST
+    const stripe = Stripe('pk_test_51RnfOGFyQwvBoOVdKlggBfIq4vIN5DkTNpugsZ898uIYJUY4l0vUAsWlS8aKSjaRSNC4XJzg5nLCRQzlZ0jF52QP00Uv69cdKz');
+    const elements = stripe.elements();
+    const card = elements.create('card');
+    card.mount('#card-element');
+
+    card.on('change', function(event) {
+      const displayError = document.getElementById('card-errors');
+      if (event.error) {
+        displayError.textContent = event.error.message;
+      } else {
+        displayError.textContent = '';
+      }
+    });
+
+    document.getElementById('payment-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Affiche un message de debug si bouton cliqué
+      console.log("🔄 Form submitted...");
+try {
+  const response = await fetch('test_api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+        if (!response.ok) {
+          throw new Error("Erreur lors de l'appel à test_api.php");
+        }
+
+        const data = await response.json();
+        console.log("✅ Client secret reçu :", data.client_secret);
+
+        const result = await stripe.confirmCardPayment(data.client_secret, {
+          payment_method: {
+            card: card
+          }
+        });
+
+        if (result.error) {
+          console.error("❌ Erreur Stripe :", result.error.message);
+          document.getElementById('card-errors').textContent = result.error.message;
+        } else {
+          if (result.paymentIntent.status === 'succeeded') {
+            alert("✅ Paiement réussi !");
+          }
+        }
+      } catch (error) {
+        console.error("❌ Erreur lors du traitement :", error);
+        document.getElementById('card-errors').textContent = "Une erreur s’est produite.";
+      }
+    });
+  </script>
+
+</body>
+</html>

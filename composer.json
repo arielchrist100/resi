@@ -1,0 +1,6 @@
+{
+    "require": {
+        "stripe/stripe-php": "^17.4",
+        "kreait/firebase-php": "^5.26"
+    }
+}
